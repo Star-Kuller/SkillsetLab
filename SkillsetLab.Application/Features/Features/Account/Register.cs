@@ -48,7 +48,9 @@ namespace Application.Features.Features.Account
                     await Transaction.Do(async () =>
                     {
                         var user = _mapper.Map<User>(request);
-                    
+
+                        user.EmailConfirmed = true;
+                        
                         var result = await _userManager.CreateAsync(user, request.Password);
                         if (!result.Succeeded)
                             throw new Exception("Не удалось создать пользователя");
@@ -56,7 +58,7 @@ namespace Application.Features.Features.Account
                         result = await _userManager.AddToRoleAsync(user, Role.Standard);
                         if (!result.Succeeded)
                             throw new Exception("Не удалось добавить роль");
-                    
+                        
                         result = await _userManager.UpdateAsync(user);
                         if (!result.Succeeded)
                             throw new Exception("Не удалось сохранить пользователя");

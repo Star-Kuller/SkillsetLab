@@ -10,11 +10,16 @@
 
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="13.0.1" />
-        <PackageReference Include="MediatR" Version="12.2.0" />
+        <PackageReference Include="MediatR" Version="11.1.0" />
         <PackageReference Include="MediatR.Contracts" Version="2.0.1" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.19" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.19" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+        <PackageReference Include="NSwag.AspNetCore" Version="14.0.7" />
+        <PackageReference Include="NSwag.Core" Version="14.0.7" />
+        <PackageReference Include="NSwag.Generation" Version="14.0.7" />
+        <PackageReference Include="NSwag.Generation.AspNetCore" Version="14.0.7" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.2" />
     </ItemGroup>
