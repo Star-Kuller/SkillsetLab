@@ -8,13 +8,13 @@ namespace Application.Features.Features.Account;
 
 public class Login
 {
-    public class Command : IRequest<string>
+    public class Command : IRequest<(string, string)>
     {
         public string Email { get; set; }
         public string Password { get; set; }
     }
     
-    public class Handler : IRequestHandler<Command, string>
+    public class Handler : IRequestHandler<Command, (string, string)>
     {
         private readonly UserManager<User> _userManager;
         private readonly ITokenProvider _tokenProvider;
@@ -25,16 +25,17 @@ public class Login
             _tokenProvider = tokenProvider;
         }
 
-        public async Task<string> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<(string, string)> Handle(Command request, CancellationToken cancellationToken)
         {
             var user = await GetUser(request.Email, request.Password);
+            var role = user.UserRoles.Select(ur => ur.Role.Name).First();
             var token = _tokenProvider.GetToken(new UserClaims
             {
                 Id = user.Id,
                 Email = user.Email,
-                Role = user.UserRoles.Select(ur => ur.Role.Name).First()
+                Role = role
             });
-            return token;
+            return (token, role);
         }
         
         private async Task<User> GetUser(string email, string password)

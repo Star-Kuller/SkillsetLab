@@ -25,7 +25,7 @@ public class AccountController : BaseController
     public async Task<IActionResult> Login([FromBody] Login.Command command)
     {
         var token = await Mediator.Send(command);
-        return Ok(new TokenResponse { AccessToken = token });
+        return Ok(new TokenResponse { AccessToken = token.Item1, Role = token.Item2 });
     }
     
     /// <summary>
@@ -40,6 +40,6 @@ public class AccountController : BaseController
     public async Task<IActionResult> Register([FromBody] Register.Command command)
     {
         var token = await Mediator.Send(command);
-        return Ok(new TokenResponse() { AccessToken = token });
+        return Ok(new TokenResponse() { AccessToken = token.Item1, Role = token.Item2 });
     }
 }

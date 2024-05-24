@@ -1,4 +1,5 @@
 using Application.Infrastructure;
+using Domain.Entities.Comon;
 using Domain.Entities.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -64,6 +65,7 @@ public static class DatabaseInitializer
         // update existing user
         adminUser.UserName = adminUserSettings.Name;
         adminUser.Email = adminUserSettings.Email;
+        adminUser.Status = Status.Enabled;
 
         var result = await userManager.UpdateAsync(adminUser);
         if (!result.Succeeded)
@@ -78,7 +80,8 @@ public static class DatabaseInitializer
             UserName = adminUserSettings.Name,
             Email = adminUserSettings.Email,
             EmailConfirmed = true,
-            PhoneNumberConfirmed = true
+            PhoneNumberConfirmed = true,
+            Status = Status.Enabled
         };
 
         var result = await userManager.CreateAsync(user, adminUserSettings.Password);

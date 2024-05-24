@@ -17,20 +17,22 @@ namespace SkillsetLab.Security
 
         public string GetToken(UserClaims userClaims)
         {
-            var jwtToken = new JwtSecurityToken(
-                issuer: _tokenManagement.Issuer,
-                audience: _tokenManagement.Audience,
-                claims: new List<Claim>
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Sid, userClaims.Id.ToString()),
-                    new Claim(ClaimTypes.Role, userClaims.Role),
-                },
-                notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.AddDays(_tokenManagement.Lifetime),
-                signingCredentials: new SigningCredentials(_tokenManagement.SecurityKey, SecurityAlgorithms.HmacSha256)
-            );
-            var token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
-            return token;
+                    new (ClaimTypes.Sid, userClaims.Id.ToString()),
+                    new (ClaimTypes.Role, userClaims.Role),
+                }),
+                Expires = DateTime.UtcNow.AddDays(_tokenManagement.Lifetime),
+                SigningCredentials = new SigningCredentials(_tokenManagement.SecurityKey, SecurityAlgorithms.HmacSha256Signature),
+                Issuer = _tokenManagement.Issuer,
+                Audience = _tokenManagement.Audience
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }

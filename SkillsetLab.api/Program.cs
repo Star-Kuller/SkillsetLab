@@ -1,4 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Application.Features.Features.Account;
 using Application.Infrastructure.AutoMapper;
 using Application.Interfaces;
@@ -6,11 +8,14 @@ using Application.Security;
 using Domain.Entities.User;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NSwag;
 using NSwag.Generation.Processors.Security;
+using SkillsetLab.Filters;
 using SkillsetLab.Infrastructure;
 using SkillsetLab.Security;
 using JwtTokenProvider = SkillsetLab.Security.JwtTokenProvider;
@@ -19,7 +24,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var services = builder.Services;
-services.AddControllers();
+
+services.AddControllers(options =>
+{
+    options.Filters.Add(typeof(CustomExceptionFilterAttribute));
+}).AddNewtonsoftJson();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
 services.AddSwaggerDocument(configure =>
@@ -70,26 +80,25 @@ services.AddIdentity<User, Role>(options =>
 services.Configure<TokenManagement>(builder.Configuration.GetSection("TokenManagement"));
 var token = builder.Configuration.GetSection("TokenManagement").Get<TokenManagement>();
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Admin", p =>
+builder.Services.AddAuthorization();
+services.AddAuthentication(x =>
     {
-        p.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        p.RequireRole(Role.Administrator);
-    });
-});
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+        x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(x =>
     {
-        options.TokenValidationParameters =
-            new TokenValidationParameters
-            {
-                ValidateAudience = false,
-                ValidateIssuer = false,
-                ValidateActor = false,
-                ValidateLifetime = true,
-                IssuerSigningKey = token.SecurityKey
-            };
+        x.RequireHttpsMetadata = false;
+        x.SaveToken = true;
+        x.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = token.Issuer,
+            ValidAudience = token.Audience,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            IssuerSigningKey = token.SecurityKey
+        };
     });
 
 services.AddTransient<ITokenProvider, JwtTokenProvider>();
@@ -109,6 +118,13 @@ app.UseOpenApi(config =>
     };
 });
 app.UseSwaggerUi();
+
+app.UseCors(policy =>
+{
+    policy.AllowAnyHeader();
+    policy.AllowAnyMethod();
+    policy.AllowAnyOrigin();
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

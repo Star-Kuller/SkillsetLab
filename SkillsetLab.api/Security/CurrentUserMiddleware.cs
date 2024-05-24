@@ -27,7 +27,7 @@ namespace SkillsetLab.Security
                 return;
             }
 
-            var userId = long.Parse(context.User.FindFirst(ClaimTypes.Sid)?.Value);
+            var userId = long.Parse(context.User.FindFirst(ClaimTypes.Sid).Value);
             
             var user = await _userManager
                 .Users

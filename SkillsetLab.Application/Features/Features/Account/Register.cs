@@ -9,7 +9,7 @@ namespace Application.Features.Features.Account
 {
     public class Register
     {
-        public class Command : IRequest<string>
+        public class Command : IRequest<(string, string)>
         {
             public string Name { get; set; }
             public string Email { get; set; }
@@ -20,12 +20,16 @@ namespace Application.Features.Features.Account
                 configuration.CreateMap<Command, User>()
                     .ForMember(entity => entity.UserName, opt =>
                         opt.MapFrom(cmd => cmd.Name))
+                    .ForMember(entity => entity.NormalizedUserName, opt =>
+                        opt.MapFrom(cmd => cmd.Name.ToUpperInvariant()))
+                    .ForMember(entity => entity.NormalizedEmail, opt =>
+                        opt.MapFrom(cmd => cmd.Email.ToUpperInvariant()))
                     .ForAllMembers(opt => 
                         opt.Ignore());
             }
         }
     
-        public class Handler : IRequestHandler<Command, string>
+        public class Handler : IRequestHandler<Command, (string, string)>
         {
             private readonly UserManager<User> _userManager;
             private readonly ILogger<Register> _logger;
@@ -41,7 +45,7 @@ namespace Application.Features.Features.Account
                 _mapper = mapper;
             }
 
-            public async Task<string> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<(string, string)> Handle(Command request, CancellationToken cancellationToken)
             {
                 try
                 {

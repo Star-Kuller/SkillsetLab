@@ -3,18 +3,28 @@
     <h3>Добро пожаловать в</h3>
     <h1>SkillsetLab.io</h1>
   </div>
-  <div class="login">
-    <div class="field">
-      <label for="email">Почта</label>
-      <input type="email" name="email" id="email">
-    </div>
-    <div class="field">
-      <label for="password">Пароль</label>
-      <input type="password" name="password" id="password">
-    </div>
-    <button>Вход</button>
-    <p>Нет аккаунта? <a>Зарегистрируйся</a>!</p>
-  </div>
+    <form class="login" name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
+      <div class="field">
+        <label for="email">Почта</label>
+        <input type="email" name="email" id="email" [(ngModel)]="form.email" #email="ngModel"
+               required email>
+        <div *ngIf="f.submitted && email.invalid">
+          <h6 class="error" *ngIf="email.errors?.['required']">Email is required</h6>
+          <h6 class="error" *ngIf="email.errors?.['email']">Email must be email</h6>
+        </div>
+      </div>
+      <div class="field">
+        <label for="password">Пароль</label>
+        <input type="password" name="password" id="password" [(ngModel)]="form.password" #password="ngModel"
+               required minlength="6">
+        <div *ngIf="f.submitted && password.invalid">
+          <h6 class="error" *ngIf="password.errors?.['required']">Password is required</h6>
+          <h6 class="error" *ngIf="password.errors?.['minlength']">Password must be at least 6 characters</h6>
+        </div>
+      </div>
+      <button>Вход</button>
+      <p>Нет аккаунта? <a>Зарегистрируйся</a>!</p>
+    </form>
 </div>
 <h3 class="motivator" id="motivator1">Решай!</h3>
 <h3 class="motivator" id="motivator2">Качай скилл!</h3>
